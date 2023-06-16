@@ -43,6 +43,8 @@ public class AgentIdentityRepository implements IdentityRepository {
 
   @Override
   public boolean add(byte[] identity) {
+    if (true)
+      throw new RuntimeException("test");
     return agent.addIdentity(identity);
   }
 

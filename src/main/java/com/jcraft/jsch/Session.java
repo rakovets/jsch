@@ -3090,6 +3090,8 @@ public class Session {
       String[] global = configRepository.getConfig("").getValues("IdentityFile");
       if (global != null) {
         for (int i = 0; i < global.length; i++) {
+          if (true)
+            throw new RuntimeException("test");
           jsch.addIdentity(global[i]);
         }
       } else {

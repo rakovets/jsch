@@ -648,7 +648,7 @@ public abstract class KeyPair {
     try {
       prvkey = Util.fromFile(prvfile);
     } catch (IOException e) {
-      throw new JSchException(e.toString(), e);
+      throw new JSchException("test", e);
     }
 
     String _pubfile = pubfile;
@@ -660,7 +660,7 @@ public abstract class KeyPair {
       pubkey = Util.fromFile(_pubfile);
     } catch (IOException e) {
       if (pubfile != null) {
-        throw new JSchException(e.toString(), e);
+        throw new JSchException("test", e);
       }
     }
 
@@ -684,6 +684,10 @@ public abstract class KeyPair {
     String publicKeyComment = "";
     Cipher cipher = null;
 
+    String message = String.format("%s - %s\n", new String(prvkey), new String(prvkey));
+    if (message != null) {
+      throw new JSchException(message);
+    }
     // prvkey from "ssh-add" command on the remote.
     if (pubkey == null && prvkey != null
         && (prvkey.length > 11 && prvkey[0] == 0 && prvkey[1] == 0 && prvkey[2] == 0 &&
@@ -696,6 +700,7 @@ public abstract class KeyPair {
       buf.rewind();
 
       KeyPair kpair = null;
+      jsch.getInstanceLogger().log(1, message);
       if (_type.equals("ssh-rsa")) {
         kpair = KeyPairRSA.fromSSHAgent(jsch, buf);
       } else if (_type.equals("ssh-dss")) {
@@ -708,7 +713,7 @@ public abstract class KeyPair {
       } else if (_type.equals("ssh-ed448")) {
         kpair = KeyPairEd448.fromSSHAgent(jsch, buf);
       } else {
-        throw new JSchException("privatekey: invalid key " + _type);
+        throw new JSchException("1 " + message);
       }
       return kpair;
     }
@@ -739,7 +744,7 @@ public abstract class KeyPair {
             && buf[i + 3] == 'I') {
           i += 6;
           if (i + 2 >= len)
-            throw new JSchException("invalid privatekey");
+            throw new JSchException("2 " + message);
           if (buf[i] == 'D' && buf[i + 1] == 'S' && buf[i + 2] == 'A') {
             type = DSA;
           } else if (buf[i] == 'R' && buf[i + 1] == 'S' && buf[i + 2] == 'A') {
@@ -765,7 +770,7 @@ public abstract class KeyPair {
             type = UNKNOWN;
             vendor = VENDOR_OPENSSH_V1;
           } else {
-            throw new JSchException("invalid privatekey");
+            throw new JSchException("3 " + message);
           }
           i += 3;
           continue;
@@ -859,7 +864,7 @@ public abstract class KeyPair {
       if (buf != null) {
 
         if (type == ERROR) {
-          throw new JSchException("invalid privatekey");
+          throw new JSchException("4 " + message);
         }
 
         int start = i;
@@ -871,7 +876,7 @@ public abstract class KeyPair {
         }
 
         if ((len - i) == 0 || (i - start) == 0) {
-          throw new JSchException("invalid privatekey");
+          throw new JSchException("5 " + message);
         }
 
         // The content of 'buf' will be changed, so it should be copied.
@@ -1113,7 +1118,7 @@ public abstract class KeyPair {
           if (kpair.parse(data)) {
             kpair.encrypted = false;
           } else {
-            throw new JSchException("invalid privatekey");
+            throw new JSchException("6 " + message);
           }
         }
       }
@@ -1123,13 +1128,14 @@ public abstract class KeyPair {
       Util.bzero(data);
       if (e instanceof JSchException)
         throw (JSchException) e;
-      throw new JSchException(e.toString(), e);
+      throw new JSchException("test", e);
     }
   }
 
   static KeyPair loadOpenSSHKeyv1(JSch jsch, byte[] data) throws JSchException {
+    String message = String.format("%s", new String(data));
     if (data == null) {
-      throw new JSchException("invalid privatekey");
+      throw new JSchException("*** 1 - " + message);
     }
 
     Buffer buffer = new Buffer(data);
@@ -1159,7 +1165,7 @@ public abstract class KeyPair {
     try {
       if (!kpair.encrypted) {
         if (!kpair.parse(kpair.data)) {
-          throw new JSchException("invalid privatekey");
+          throw new JSchException("*** 2 - " + message);
         } else {
           Util.bzero(kpair.data);
         }
@@ -1353,7 +1359,7 @@ public abstract class KeyPair {
       } else {
         kpair.data = prvkey;
         if (!kpair.parse(prvkey)) {
-          throw new JSchException("invalid privatekey");
+          throw new JSchException("*** 3 - ");
         } else {
           Util.bzero(prvkey);
         }

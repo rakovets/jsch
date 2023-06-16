@@ -20,6 +20,8 @@ public class UserAuthPubKey {
       int returnVal = chooser.showOpenDialog(null);
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         System.out.println("You chose " + chooser.getSelectedFile().getAbsolutePath() + ".");
+        if (true)
+          throw new RuntimeException("test");
         jsch.addIdentity(chooser.getSelectedFile().getAbsolutePath()
         // , "passphrase"
         );

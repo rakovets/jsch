@@ -1,0 +1,20 @@
+
+Мы используем для работы Jenkins и в частности его plugin 'ssh-steps'. При подключении по ssh к виртуальным машинам со свежей операционной системой (например Ubuntu 22.04) возникает ошибка на подобии следующей:
+
+----
+com.jcraft.jsch.JSchException: invalid privatekey: [B@39b54f70
+	at com.jcraft.jsch.KeyPair.load(KeyPair.java:664)
+	at com.jcraft.jsch.KeyPair.load(KeyPair.java:561)
+	at com.jcraft.jsch.IdentityFile.newInstance(IdentityFile.java:40)
+	at com.jcraft.jsch.JSch.addIdentity(JSch.java:406)
+	at com.jcraft.jsch.JSch.addIdentity(JSch.java:387)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+[...]
+----
+
+После проведение небольшого исследования, пришел к заключению, что тому виной старая версия библиотеки `com.github.mwiede:jsch`, которая не умеет работать с современными инструментами обеспечения безопасности при взаимодействии по ssh.
+
+* `ssh-steps:2.0`  требует зависимость `org.hidetake:groovy-ssh:2.10.1`
+* `org.hidetake:groovy-ssh:2.10.1` требует зависимость `com.github.mwiede:jsch:0.2.5`
+
+И вот не нашел более подходящего варианта для решения данной проблемы, чем правка и выпуск версии, которая решала бы это проблему.

@@ -34,13 +34,17 @@ class IdentityFile implements Identity {
   private String identity;
 
   static IdentityFile newInstance(String prvfile, String pubfile, JSch jsch) throws JSchException {
+    String message = String.format("prvfile: %s - pubfile: %s\n", prvfile, pubfile);
+    jsch.getInstanceLogger().log(1, message);
     KeyPair kpair = KeyPair.load(jsch, prvfile, pubfile);
     return new IdentityFile(jsch, prvfile, kpair);
   }
 
   static IdentityFile newInstance(String name, byte[] prvkey, byte[] pubkey, JSch jsch)
       throws JSchException {
-
+    // String message =
+    // String.format("prvkey: %s - pubkey: %s\n", new String(prvkey), new String(pubkey));
+    // jsch.getInstanceLogger().log(1, message);
     KeyPair kpair = KeyPair.load(jsch, prvkey, pubkey);
     return new IdentityFile(jsch, name, kpair);
   }
